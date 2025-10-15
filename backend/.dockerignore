@@ -1,0 +1,16 @@
+venv
+__pycache__/
+**/__pycache__/
+*.pyc
+.cache/
+cache/
+data/
+models/
+*.joblib
+*.meta
+.env
+.git
+.gitignore
+*.ipynb
+.DS_Store
+

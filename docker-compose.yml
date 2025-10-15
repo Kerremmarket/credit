@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        INCLUDE_TF: "false"  # Set to "true" to include TensorFlow/MLP
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - FRONTEND_ORIGIN=http://localhost:5173
+      - DEMO_MODE=true
+    volumes:
+      # Mount data directory (read-only recommended for production)
+      - ./backend/data:/data:ro
+      # Mount models and cache for persistence
+      - ./backend/models:/app/models
+      - ./backend/cache:/app/cache
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_BASE=http://localhost:8000
+    depends_on:
+      - backend
+
+# For Railway deployment, use separate services with environment-specific configs
+# See RAILWAY_DEPLOY.md for detailed instructions
+
