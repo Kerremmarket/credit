@@ -4,7 +4,6 @@ __pycache__/
 *.pyc
 .cache/
 cache/
-data/
 models/
 *.joblib
 *.meta
@@ -13,4 +12,16 @@ models/
 .gitignore
 *.ipynb
 .DS_Store
+
+# Exclude large data files but keep small sample
+data/cs-training.csv
+data/cs-test.csv
+data/GiveMeSomeCredit.zip
+data/sampleEntry.csv
+# Keep these small files
+!data/cs-training-sample-small.csv
+!data/exemplars_10.csv
+!data/exemplars_10.json
+!data/README.md
+!data/Data Dictionary.xls
 
