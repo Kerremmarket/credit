@@ -32,3 +32,6 @@
 - NumberRealEstateLoansOrLines: Number of real estate loans
 - NumberOfTime60-89DaysPastDueNotWorse: Number of times 60-89 days past due
 - NumberOfDependents: Number of dependents
+
+
+
