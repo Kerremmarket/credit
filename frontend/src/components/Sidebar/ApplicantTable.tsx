@@ -44,36 +44,44 @@ export function ApplicantTable() {
     return selectedApplicant?.row_index === applicant.row_index;
   };
 
-  // Sorting
-  const [sortKey, setSortKey] = useState<string>('__pred');
+  // Sorting - start with neutral (no sorting)
+  const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortAsc, setSortAsc] = useState<boolean>(false);
 
   const sortedApplicants = useMemo(() => {
     const arr = [...allApplicants];
-    arr.sort((a, b) => {
-      let va: any; let vb: any;
-      if (sortKey === '__pred') {
-        va = getPrediction(a) ?? -Infinity;
-        vb = getPrediction(b) ?? -Infinity;
-      } else {
-        va = a.feature_values[sortKey as keyof typeof a.feature_values];
-        vb = b.feature_values[sortKey as keyof typeof b.feature_values];
-      }
-      const na = Number(va); const nb = Number(vb);
-      const bothNum = Number.isFinite(na) && Number.isFinite(nb);
-      let cmp = 0;
-      if (bothNum) cmp = na - nb; else cmp = String(va).localeCompare(String(vb));
-      return sortAsc ? cmp : -cmp;
-    });
+    // Only sort if sortKey is set
+    if (sortKey) {
+      arr.sort((a, b) => {
+        let va: any; let vb: any;
+        if (sortKey === '__pred') {
+          va = getPrediction(a) ?? -Infinity;
+          vb = getPrediction(b) ?? -Infinity;
+        } else {
+          va = a.feature_values[sortKey as keyof typeof a.feature_values];
+          vb = b.feature_values[sortKey as keyof typeof b.feature_values];
+        }
+        const na = Number(va); const nb = Number(vb);
+        const bothNum = Number.isFinite(na) && Number.isFinite(nb);
+        let cmp = 0;
+        if (bothNum) cmp = na - nb; else cmp = String(va).localeCompare(String(vb));
+        return sortAsc ? cmp : -cmp;
+      });
+    }
     return arr;
   }, [allApplicants, sortKey, sortAsc, predictions, selectedModel]);
 
   const onSort = (key: string) => {
     if (sortKey === key) {
-      setSortAsc(!sortAsc);
+      // Cycle through: asc -> desc -> neutral
+      if (sortAsc) {
+        setSortAsc(false);
+      } else {
+        setSortKey(null); // Reset to neutral
+      }
     } else {
       setSortKey(key);
-      setSortAsc(false);
+      setSortAsc(true); // Start with ascending
     }
   };
 

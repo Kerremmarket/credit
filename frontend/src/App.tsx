@@ -40,7 +40,7 @@ function App() {
       <div className="flex items-center justify-center h-screen" style={{ backgroundColor: '#f9fafb' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading Give Me Sum Credit...</p>
+          <p className="mt-4 text-gray-600">Loading Give Me Some Credit...</p>
         </div>
       </div>
     );
@@ -85,7 +85,7 @@ function App() {
             </button>
             
             <h1 className="text-lg md:text-2xl font-bold text-gray-900">
-              Give Me Sum Credit
+              Give Me Some Credit
             </h1>
           </div>
         </div>
