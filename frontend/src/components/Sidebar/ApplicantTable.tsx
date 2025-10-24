@@ -114,7 +114,7 @@ export function ApplicantTable() {
                 key={applicant.row_index}
                 className={`
                   border-b border-gray-100 cursor-pointer transition-colors
-                  ${isSelected(applicant) ? 'bg-primary-50' : 'hover:bg-gray-100'}
+                  ${isSelected(applicant) ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-100'}
                 `}
                 onClick={() => selectApplicant(applicant)}
               >

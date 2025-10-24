@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { FEATURE_ABBREV } from '@/lib/featureAbbrev';
+import { FullScreenModal } from './FullScreenModal';
 
 type TreeStruct = {
   children_left: number[];
@@ -18,6 +19,7 @@ interface GlobalTreeProps {
 export function GlobalTree({ tree, maxDepth = 6 }: GlobalTreeProps) {
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const dragging = useRef(false);
   const lastPos = useRef({ x: 0, y: 0 });
 
@@ -126,15 +128,56 @@ export function GlobalTree({ tree, maxDepth = 6 }: GlobalTreeProps) {
   const onMouseLeave = () => { dragging.current = false; };
 
   return (
-    <div
-      className="w-full overflow-hidden border border-gray-200 rounded overscroll-contain"
-      style={{ maxHeight: 420, cursor: dragging.current ? 'grabbing' : 'grab' }}
-      onWheel={onWheel}
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseLeave}
-    >
+    <>
+      <div className="space-y-2">
+        {/* Controls */}
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-700">
+            Drag to pan, scroll to zoom
+          </div>
+          <div className="flex gap-1">
+            <button 
+              type="button"
+              onClick={() => { setScale((s) => Math.max(0.3, s * 0.9)); }}
+              className="px-2 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+            >
+              −
+            </button>
+            <button 
+              type="button"
+              onClick={() => { setScale((s) => Math.min(3, s * 1.1)); }}
+              className="px-2 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+            >
+              +
+            </button>
+            <button 
+              type="button"
+              onClick={() => { setScale(1); setOffset({ x: 0, y: 0 }); }}
+              className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+            >
+              Reset
+            </button>
+            <button 
+              type="button"
+              onClick={() => setIsFullScreen(true)}
+              className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 ml-2"
+              title="Full Screen View"
+            >
+              ⛶ Full Screen
+            </button>
+          </div>
+        </div>
+
+        {/* Tree View */}
+        <div
+          className="w-full overflow-hidden border border-gray-200 rounded overscroll-contain"
+          style={{ maxHeight: 420, cursor: dragging.current ? 'grabbing' : 'grab' }}
+          onWheel={onWheel}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseLeave}
+        >
       <svg width={width} height={height}>
         <g transform={`translate(${offset.x}, ${offset.y}) scale(${scale})`}>
           {edges.map((e, i) => (
@@ -164,7 +207,52 @@ export function GlobalTree({ tree, maxDepth = 6 }: GlobalTreeProps) {
           ))}
         </g>
       </svg>
-    </div>
+        </div>
+      </div>
+
+      {/* Full Screen Modal */}
+      <FullScreenModal
+        isOpen={isFullScreen}
+        onClose={() => setIsFullScreen(false)}
+        title="Random Forest - Decision Tree Structure"
+      >
+        <div className="w-full h-full flex items-center justify-center">
+          <svg 
+            width={width} 
+            height={height}
+            className="max-w-full max-h-full"
+          >
+            <g transform={`translate(${offset.x}, ${offset.y}) scale(${scale})`}>
+              {edges.map((e, i) => (
+                <line key={i} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} stroke="#D1D5DB" strokeWidth={2 / scale} />
+              ))}
+              {nodes.map((n) => (
+                <g key={n.id}>
+                  <rect
+                    x={n.x - 48}
+                    y={n.y - 18}
+                    width={96}
+                    height={36}
+                    rx={6}
+                    fill={n.isLeaf ? '#ECFDF5' : '#F3F4F6'}
+                    stroke={n.isLeaf ? '#A7F3D0' : '#E5E7EB'}
+                    strokeWidth={1 / scale}
+                  />
+                  <text x={n.x} y={n.y - 2} textAnchor="middle" fontSize={10 / scale} fill="#374151">
+                    {n.isLeaf ? 'Leaf' : n.label}
+                  </text>
+                  {!n.isLeaf && (
+                    <text x={n.x} y={n.y + 12} textAnchor="middle" fontSize={10 / scale} fill="#6B7280">
+                      ≤ {n.thresh}
+                    </text>
+                  )}
+                </g>
+              ))}
+            </g>
+          </svg>
+        </div>
+      </FullScreenModal>
+    </>
   );
 }
 

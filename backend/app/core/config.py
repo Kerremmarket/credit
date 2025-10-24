@@ -45,12 +45,12 @@ FEATURE_COLUMNS = [
     "RevolvingUtilizationOfUnsecuredLines",
     "age",
     "NumberOfTime30-59DaysPastDueNotWorse",
+    "NumberOfTime60-89DaysPastDueNotWorse",
+    "NumberOfTimes90DaysLate",
     "DebtRatio",
     "MonthlyIncome",
     "NumberOfOpenCreditLinesAndLoans",
-    "NumberOfTimes90DaysLate",
     "NumberRealEstateLoansOrLines",
-    "NumberOfTime60-89DaysPastDueNotWorse",
     "NumberOfDependents"
 ]
 

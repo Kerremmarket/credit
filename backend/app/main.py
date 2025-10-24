@@ -41,7 +41,14 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_ORIGIN, "http://localhost:5173", "http://localhost:3000"],
+    allow_origins=[
+        FRONTEND_ORIGIN,
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5174",
+        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -135,7 +142,9 @@ async def train_model(request: TrainRequest):
             X_train, X_test,
             y_train, y_test,
             request.feature_config,
-            request.scale_numeric
+            request.scale_numeric,
+            request.n_estimators,
+            request.hidden_layers
         )
         # Separate confusion matrix and feature_importance to satisfy schema types
         confusion = []

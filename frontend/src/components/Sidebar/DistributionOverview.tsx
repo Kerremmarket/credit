@@ -1,6 +1,6 @@
 import { useStore } from '@/state/useStore';
 import { useEffect, useMemo, useState } from 'react';
-import { abbrev } from '@/lib/featureAbbrev';
+import { abbrev, FEATURE_EXPLANATION } from '@/lib/featureAbbrev';
 import Plot from 'react-plotly.js';
 
 export function DistributionOverview() {
@@ -43,13 +43,6 @@ export function DistributionOverview() {
 
   return (
     <div className="p-4">
-      {/* Header */}
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Distribution Overview
-        </h3>
-      </div>
-
       {/* Feature Selection */}
       <div className="mb-4">
         <select
@@ -150,6 +143,11 @@ export function DistributionOverview() {
         <div className="text-xs text-blue-800 space-y-1">
           <div>Total rows: {datasetMeta.row_count.toLocaleString()}</div>
           <div>Features: {(datasetMeta.feature_list || []).filter((f: string) => f !== 'SeriousDlqin2yrs').length}</div>
+          <div className="mt-2 pt-2 border-t border-blue-200">
+            <div className="font-medium mb-1">Train/Test Split (80/20):</div>
+            <div className="pl-2">Training: {Math.floor(datasetMeta.row_count * 0.8).toLocaleString()} rows</div>
+            <div className="pl-2">Testing: {Math.floor(datasetMeta.row_count * 0.2).toLocaleString()} rows</div>
+          </div>
         </div>
       </div>
 

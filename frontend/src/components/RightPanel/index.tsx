@@ -4,8 +4,19 @@ import { ModelVisualization } from './ModelVisualization';
 import { ModelSummary } from './ModelSummary';
 import { OutputBlock } from './OutputBlock';
 import { CompareMode } from './CompareMode';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 
 export function RightPanel() {
+  const renderMath = (latex: string, displayMode = false) => {
+    return (
+      <span
+        dangerouslySetInnerHTML={{
+          __html: katex.renderToString(latex, { throwOnError: false, displayMode }),
+        }}
+      />
+    );
+  };
   const pinnedApplicants = useStore((state) => state.pinnedApplicants);
   const selectedApplicant = useStore((state) => state.selectedApplicant);
   const selectedModel = useStore((state) => state.selectedModel);
@@ -33,28 +44,45 @@ export function RightPanel() {
                 {selectedModel === 'mlp' && (
                   <span className="relative group inline-flex items-center">
                     <span className="cursor-help text-gray-500 select-none">?</span>
-                    <div className="hidden group-hover:block absolute left-4 top-full mt-2 z-[9999] w-[28rem] max-h-[26rem] overflow-auto rounded-md border border-gray-200 bg-white shadow-lg p-3 text-[11px] text-gray-700">
-                      <div className="space-y-2 leading-snug">
+                    <div className="hidden group-hover:block absolute left-4 top-full mt-2 z-[9999] w-[36rem] max-h-[30rem] overflow-auto rounded-md border border-gray-200 bg-white shadow-lg p-4 text-xs text-gray-700">
+                      <div className="space-y-3 leading-snug">
                         <div>
-                          <span className="font-semibold">Forward pass:</span>
-                          <div><span className="font-mono">a^(0)</span> = preprocessed features <span className="font-mono">x′</span></div>
-                          <div><span className="font-mono">z^(ℓ) = W^(ℓ)a^(ℓ−1) + b^(ℓ)</span>, <span className="font-mono">a^(ℓ) = ReLU(z^(ℓ))</span> for hidden layers</div>
-                          <div><span className="font-mono">z^(L) = W^(L)a^(L−1) + b^(L)</span>, <span className="font-mono">p = σ(z^(L))</span> for output</div>
+                          <span className="font-semibold block mb-2 text-sm">Forward pass:</span>
+                          <div className="ml-2 space-y-1.5">
+                            <div className="flex items-center gap-2">
+                              {renderMath('a^{(0)} = x^{\\prime}')}
+                              <span className="text-gray-600 text-[11px]">= preprocessed features</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <div>{renderMath('z^{(\\ell)} = W^{(\\ell)} a^{(\\ell-1)} + b^{(\\ell)}, \\quad a^{(\\ell)} = \\text{ReLU}(z^{(\\ell)})')}</div>
+                              <span className="text-gray-600 text-[11px] whitespace-nowrap">for hidden layers</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <div>{renderMath('z^{(L)} = W^{(L)} a^{(L-1)} + b^{(L)}, \\quad p = \\sigma(z^{(L)})')}</div>
+                              <span className="text-gray-600 text-[11px] whitespace-nowrap">for output</span>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <span className="font-semibold">Cells (neurons):</span>
-                          <div>Number = post‑activation <span className="font-mono">a_i^(ℓ)</span>. Green: active (<span className="font-mono">a_i^(ℓ)&gt;0</span>); Red: gated off (<span className="font-mono">a_i^(ℓ)=0</span>). Output shows <span className="font-mono">p∈(0,1)</span>.</div>
+                        <div className="border-t pt-2">
+                          <span className="font-semibold block mb-2 text-sm">Cells (neurons):</span>
+                          <div className="ml-2 text-[11px]">
+                            Number = post-activation {renderMath('a_i^{(\\ell)}')}. Green: active ({renderMath('a_i^{(\\ell)} > 0')}); Red: gated off ({renderMath('a_i^{(\\ell)} = 0')}). Output shows {renderMath('p \\in (0,1)')}.
+                          </div>
                         </div>
-                        <div>
-                          <span className="font-semibold">Strings (connections):</span>
-                          <div>Thickness/opacity ∝ <span className="font-mono">|a_i^(ℓ)|</span> of the source neuron (more active ⇒ thicker/brighter).</div>
+                        <div className="border-t pt-2">
+                          <span className="font-semibold block mb-2 text-sm">Strings (connections):</span>
+                          <div className="ml-2 text-[11px]">
+                            Thickness/opacity {renderMath('\\propto |a_i^{(\\ell)}|')} of the source neuron (more active {renderMath('\\Rightarrow')} thicker/brighter).
+                          </div>
                         </div>
-                        <div>
-                          <span className="font-semibold">How cell values contribute:</span>
-                          <div className="font-mono text-[10px]">z^(L) = b^(L) + Σ_i w^(L)_(1,i)·a_i^(L−1)</div>
-                          <div>Contribution of last hidden neuron <span className="font-mono">i</span> to the logit: <span className="font-mono">c_i = w^(L)_(1,i)·a_i^(L−1)</span>.</div>
-                          <div>Approximate effect on probability: <span className="font-mono">Δp_i ≈ p(1−p)·c_i</span> (since <span className="font-mono">σ′(z)=p(1−p)</span>).</div>
-                          <div>Earlier layers influence via downstream weights and ReLU gates (chain rule with <span className="font-mono">D^(t)=diag(1[z^(t)&gt;0])</span>).</div>
+                        <div className="border-t pt-2">
+                          <span className="font-semibold block mb-2 text-sm">How cell values contribute:</span>
+                          <div className="ml-2 space-y-1.5 text-[11px]">
+                            <div>{renderMath('z^{(L)} = b^{(L)} + \\sum_i w^{(L)}_{1,i} \\cdot a_i^{(L-1)}')}</div>
+                            <div>Contribution of last hidden neuron {renderMath('i')} to the logit: {renderMath('c_i = w^{(L)}_{1,i} \\cdot a_i^{(L-1)}')}</div>
+                            <div>Approximate effect on probability: {renderMath('\\Delta p_i \\approx p(1-p) \\cdot c_i')} (since {renderMath('\\sigma^{\\prime}(z) = p(1-p)')}).</div>
+                            <div>Earlier layers influence via downstream weights and ReLU gates (chain rule with {renderMath('D^{(t)} = \\text{diag}(\\mathbf{1}[z^{(t)} > 0])')}).</div>
+                          </div>
                         </div>
                       </div>
                     </div>

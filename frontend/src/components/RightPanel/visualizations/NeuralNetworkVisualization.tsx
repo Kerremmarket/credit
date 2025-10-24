@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '@/state/useStore';
+import { FullScreenModal } from './FullScreenModal';
 
 export function NeuralNetworkVisualization() {
   const forwardTrace = useStore((state) => state.forwardTrace);
@@ -11,6 +12,7 @@ export function NeuralNetworkVisualization() {
   const [offsetGlobal, setOffsetGlobal] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [scaleApplicant, setScaleApplicant] = useState<number>(1);
   const [offsetApplicant, setOffsetApplicant] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const dragging = useRef(false);
   const lastPos = useRef({ x: 0, y: 0 });
 
@@ -74,6 +76,7 @@ export function NeuralNetworkVisualization() {
     const viewHeight = maxNeurons * ySpacing + 50;
     
     return (
+      <>
       <div className="p-4 rounded-lg" style={{ backgroundColor: '#f9fafb' }}>
         <div className="mb-3 flex items-center justify-between">
           <div>
@@ -103,6 +106,14 @@ export function NeuralNetworkVisualization() {
               className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
             >
               Reset
+            </button>
+            <button 
+              type="button"
+              onClick={() => setIsFullScreen(true)}
+              className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 ml-2"
+              title="Full Screen View"
+            >
+              ⛶ Full Screen
             </button>
           </div>
         </div>
@@ -171,6 +182,61 @@ export function NeuralNetworkVisualization() {
           </svg>
         </div>
       </div>
+
+      {/* Full Screen Modal for Global View */}
+      <FullScreenModal
+        isOpen={isFullScreen}
+        onClose={() => setIsFullScreen(false)}
+        title={`Neural Network Architecture: ${[arch.input_size, ...arch.hidden_layers, arch.output_size].join(' → ')}`}
+      >
+        <div className="w-full h-full flex items-center justify-center">
+          <svg 
+            viewBox={`0 0 ${viewWidth} ${viewHeight}`}
+            className="w-full h-full"
+            preserveAspectRatio="xMidYMid meet"
+            style={{ 
+              maxWidth: '90%',
+              maxHeight: '90%',
+            }}
+          >
+              {/* Connections */}
+              {allLayers.slice(0, -1).map((layer, layerIdx) => {
+                const nextLayer = allLayers[layerIdx + 1];
+                const x1 = (layerIdx + 1) * xSpacing;
+                const x2 = (layerIdx + 2) * xSpacing;
+                const y1Offset = (maxNeurons - layer.neurons) * ySpacing / 2;
+                const y2Offset = (maxNeurons - nextLayer.neurons) * ySpacing / 2;
+                return new Array(layer.neurons).fill(0).map((_, i) => {
+                  const y1 = 25 + y1Offset + i * ySpacing;
+                  return new Array(nextLayer.neurons).fill(0).map((__, j) => {
+                    const y2 = 25 + y2Offset + j * ySpacing;
+                    return (
+                      <line key={`${layerIdx}-${i}-${j}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(59,130,246,0.2)" strokeWidth={0.5} />
+                    );
+                  });
+                }).flat();
+              }).flat()}
+              {/* Neurons */}
+              {allLayers.map((layer, layerIdx) => {
+                const x = (layerIdx + 1) * xSpacing;
+                const yOffset = (maxNeurons - layer.neurons) * ySpacing / 2;
+                return new Array(layer.neurons).fill(0).map((_, i) => {
+                  const y = 25 + yOffset + i * ySpacing;
+                  return (
+                    <circle key={`${layerIdx}-${i}`} cx={x} cy={y} r="4" fill="rgb(34,197,94)" fillOpacity={0.6} stroke="rgb(34,197,94)" strokeWidth="1" />
+                  );
+                });
+              }).flat()}
+              {/* Labels */}
+              {allLayers.map((layer, idx) => (
+                <text key={idx} x={(idx + 1) * xSpacing} y="15" fontSize="9" fill="#666" textAnchor="middle">
+                  {layer.type === 'features' ? 'Features' : layer.type === 'output' ? 'Output' : `Hidden ${idx}`}
+                </text>
+              ))}
+          </svg>
+        </div>
+      </FullScreenModal>
+    </>
     );
   }
 
@@ -178,20 +244,20 @@ export function NeuralNetworkVisualization() {
   const numLayers = networkData.layers.length;
   const xSpacing = 140;
   const viewWidth = xSpacing * (numLayers + 1);
-  const featureCount = networkData.layers[0]?.neurons || 1;
-  const maxNeuronsInLayer = Math.max(featureCount, 8);
-  const viewHeight = maxNeuronsInLayer * 30 + 80;
+  // Find the max neurons across ALL layers to ensure all neurons are visible
+  const maxNeuronsInLayer = Math.max(...networkData.layers.map((l: any) => l.neurons));
+  const viewHeight = maxNeuronsInLayer * 35 + 100;
   const ySpacing = viewHeight / (maxNeuronsInLayer + 2);
 
   return (
+    <>
     <div className="p-4 rounded-lg" style={{ backgroundColor: '#f9fafb' }}>
-      <div className="p-4 rounded-lg" style={{ backgroundColor: '#f9fafb' }}>
         <div className="flex items-center justify-between mb-2">
           <div>
             <h4 className="text-sm font-medium text-gray-700">
               Network Architecture: {networkData.layers.map((l: any) => l.neurons).join(' → ')}
             </h4>
-            <div className="text-xs text-gray-500">Features fully shown; hidden/output up to 8 neurons</div>
+            <div className="text-xs text-gray-500">All neurons shown in applicant view</div>
           </div>
           <div className="flex gap-1">
             <button 
@@ -207,6 +273,21 @@ export function NeuralNetworkVisualization() {
               className="px-2 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
             >
               +
+            </button>
+            <button 
+              type="button"
+              onClick={() => { setScaleApplicant(1); setOffsetApplicant({ x: 0, y: 0 }); }}
+              className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+            >
+              Reset
+            </button>
+            <button 
+              type="button"
+              onClick={() => setIsFullScreen(true)}
+              className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 ml-2"
+              title="Full Screen View"
+            >
+              ⛶ Full Screen
             </button>
           </div>
         </div>
@@ -227,11 +308,16 @@ export function NeuralNetworkVisualization() {
           }}
           onMouseUp={() => { dragging.current = false; }}
           onMouseLeave={() => { dragging.current = false; }}
-          style={{ cursor: dragging.current ? 'grabbing' : 'grab', maxHeight: '400px' }}
+          style={{ cursor: dragging.current ? 'grabbing' : 'grab', maxHeight: '600px', minHeight: '400px' }}
         >
           <svg
             viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-            style={{ width: `${viewWidth * scaleApplicant}px`, minWidth: '100%', transform: `translate(${offsetApplicant.x}px, ${offsetApplicant.y}px)` }}
+            style={{ 
+              width: `${viewWidth * scaleApplicant}px`, 
+              height: `${viewHeight * scaleApplicant}px`,
+              minWidth: `${viewWidth}px`,
+              transform: `translate(${offsetApplicant.x}px, ${offsetApplicant.y}px)` 
+            }}
             preserveAspectRatio="xMidYMid meet"
           >
             {/* Draw connections with weighted thickness */}
@@ -239,9 +325,8 @@ export function NeuralNetworkVisualization() {
               const nextLayer = networkData.layers[layerIdx + 1];
               const x1 = (layerIdx + 1) * xSpacing;
               const x2 = (layerIdx + 2) * xSpacing;
-              const isFeatureLayer = layer.type === 'features';
-              const currentCount = isFeatureLayer ? layer.neurons : Math.min(layer.neurons, 8);
-              const nextCount = Math.min(nextLayer.neurons, nextLayer.type === 'features' ? nextLayer.neurons : 8);
+              const currentCount = layer.neurons;
+              const nextCount = nextLayer.neurons;
               return new Array(currentCount).fill(0).map((_, neuronIdx: number) => {
                 const y1 = (neuronIdx + 1) * ySpacing;
                 return new Array(nextCount).fill(0).map((__, nextIdx: number) => {
@@ -267,8 +352,8 @@ export function NeuralNetworkVisualization() {
             {/* Draw neurons */}
             {networkData.layers.map((layer: any, layerIdx: number) => {
               const x = (layerIdx + 1) * xSpacing;
+              const currentCount = layer.neurons;
               const isFeatureLayer = layer.type === 'features';
-              const currentCount = isFeatureLayer ? layer.neurons : Math.min(layer.neurons, 8);
             return new Array(currentCount).fill(0).map((_, neuronIdx: number) => {
               const activation = layer.activations?.[neuronIdx] ?? 0.5;
               const y = (neuronIdx + 1) * ySpacing;
@@ -318,6 +403,106 @@ export function NeuralNetworkVisualization() {
           </svg>
         </div>
       </div>
-    </div>
+
+      {/* Full Screen Modal for Applicant View */}
+      <FullScreenModal
+        isOpen={isFullScreen}
+        onClose={() => setIsFullScreen(false)}
+        title={`Neural Network - Applicant View: ${networkData.layers.map((l: any) => l.neurons).join(' → ')}`}
+      >
+        <div className="w-full h-full flex items-center justify-center">
+          <svg
+            viewBox={`0 0 ${viewWidth} ${viewHeight}`}
+            className="w-full h-full"
+            preserveAspectRatio="xMidYMid meet"
+            style={{
+              maxWidth: '90%',
+              maxHeight: '90%',
+            }}
+          >
+              {/* Draw weighted connections */}
+              {networkData.layers.slice(0, -1).map((layer: any, layerIdx: number) => {
+                const nextLayer = networkData.layers[layerIdx + 1];
+                const currentCount = layer.neurons;
+                const nextCount = nextLayer.neurons;
+                const weights = layer.w || [];
+                return new Array(currentCount).fill(0).flatMap((_, neuronIdx: number) => {
+                  return new Array(nextCount).fill(0).map((__, nextIdx: number) => {
+                    const weight = weights[neuronIdx]?.[nextIdx] ?? 0.5;
+                    const x1 = (layerIdx + 1) * xSpacing;
+                    const x2 = (layerIdx + 2) * xSpacing;
+                    const y1 = (neuronIdx + 1) * ySpacing;
+                    const y2 = (nextIdx + 1) * ySpacing;
+                    return (
+                      <line
+                        key={`${layerIdx}-${neuronIdx}-${nextIdx}`}
+                        x1={x1}
+                        y1={y1}
+                        x2={x2}
+                        y2={y2}
+                        stroke="rgb(59, 130, 246)"
+                        strokeWidth={Math.max(0.5, weight * 3)}
+                        opacity={0.4 + weight * 0.4}
+                      />
+                    );
+                  });
+                });
+              }).flat()}
+
+              {/* Draw neurons */}
+              {networkData.layers.map((layer: any, layerIdx: number) => {
+                const x = (layerIdx + 1) * xSpacing;
+                const currentCount = layer.neurons;
+                const isFeatureLayer = layer.type === 'features';
+                return new Array(currentCount).fill(0).map((_, neuronIdx: number) => {
+                  const activation = layer.activations?.[neuronIdx] ?? 0.5;
+                  const y = (neuronIdx + 1) * ySpacing;
+                  return (
+                    <g key={`${layerIdx}-${neuronIdx}`}>
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="12"
+                        fill={activation > 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'}
+                        fillOpacity={0.7}
+                        stroke={activation > 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'}
+                        strokeWidth="2"
+                      />
+                      {!isFeatureLayer && (
+                        <text
+                          x={x}
+                          y={y + 3}
+                          fontSize="8"
+                          fill="white"
+                          textAnchor="middle"
+                          fontWeight="bold"
+                        >
+                          {Number(activation).toFixed(2)}
+                        </text>
+                      )}
+                    </g>
+                  );
+                });
+              }).flat()}
+
+              {/* Layer labels */}
+              {networkData.layers.map((layer: any, idx: number) => (
+                <text
+                  key={`label-${idx}`}
+                  x={(idx + 1) * xSpacing}
+                  y="16"
+                  fontSize="10"
+                  fill="#666"
+                  textAnchor="middle"
+                >
+                  {layer.type === 'features' ? 'Features' :
+                   layer.type === 'output' ? 'Output' : 
+                   `Hidden ${idx}`}
+                </text>
+              ))}
+            </svg>
+        </div>
+      </FullScreenModal>
+    </>
   );
 }

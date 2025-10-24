@@ -36,7 +36,9 @@ class ModelManager:
         y_train: pd.Series,
         y_test: pd.Series,
         features: List[str],
-        scale: bool = True
+        scale: bool = True,
+        n_estimators: Optional[int] = None,
+        hidden_layers: Optional[List[int]] = None
     ) -> Dict[str, Any]:
         """Train a model and return metrics."""
         
@@ -50,16 +52,18 @@ class ModelManager:
                 random_state=RANDOM_STATE
             )
         elif model_type == "rf":
+            n_trees = n_estimators if n_estimators is not None else 100
             model = RandomForestClassifier(
-                n_estimators=100,  # Reduced for speed
+                n_estimators=n_trees,
                 max_depth=10,
                 class_weight='balanced_subsample',
                 random_state=RANDOM_STATE,
                 n_jobs=-1
             )
         elif model_type == "xgb":
+            n_trees = n_estimators if n_estimators is not None else 100
             model = xgb.XGBClassifier(
-                n_estimators=100,  # Reduced for speed
+                n_estimators=n_trees,
                 max_depth=4,
                 subsample=0.8,
                 colsample_bytree=0.8,
@@ -69,7 +73,7 @@ class ModelManager:
             )
         elif model_type == "mlp":
             # For MLP, we'll handle it separately due to TensorFlow
-            return self._train_mlp(X_train, X_test, y_train, y_test, features, scale)
+            return self._train_mlp(X_train, X_test, y_train, y_test, features, scale, hidden_layers)
         else:
             raise ValueError(f"Unknown model type: {model_type}")
         
@@ -119,7 +123,8 @@ class ModelManager:
         y_train: pd.Series,
         y_test: pd.Series,
         features: List[str],
-        scale: bool = True
+        scale: bool = True,
+        hidden_layers: Optional[List[int]] = None
     ) -> Dict[str, Any]:
         """Train MLP model using TensorFlow."""
         
@@ -143,12 +148,15 @@ class ModelManager:
             X_train_scaled = X_train_imp
             X_test_scaled = X_test_imp
         
+        # Use custom hidden layers or default
+        layer_sizes = hidden_layers if hidden_layers is not None else MLP_HIDDEN
+        
         # Build model
         model = keras.Sequential()
         model.add(layers.Input(shape=(len(features),)))
         
         # Hidden layers
-        for units in MLP_HIDDEN:
+        for units in layer_sizes:
             model.add(layers.Dense(units, activation='relu'))
             model.add(layers.Dropout(0.3))
         

@@ -46,6 +46,9 @@ class TrainRequest(BaseModel):
     test_size: float = Field(default=0.2, description="Test set proportion")
     random_state: int = Field(default=42, description="Random seed")
     scale_numeric: bool = Field(default=True, description="Whether to scale features")
+    # Model-specific parameters
+    n_estimators: Optional[int] = Field(default=None, description="Number of trees for RF/XGB")
+    hidden_layers: Optional[List[int]] = Field(default=None, description="Hidden layer sizes for MLP")
 
 
 class TrainResponse(BaseModel):

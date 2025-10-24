@@ -36,6 +36,8 @@ export interface TrainRequest {
   test_size?: number;
   random_state?: number;
   scale_numeric?: boolean;
+  n_estimators?: number;
+  hidden_layers?: number[];
 }
 
 export interface TrainResponse {

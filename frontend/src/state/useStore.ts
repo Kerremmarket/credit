@@ -36,12 +36,17 @@ interface ConfigSlice {
   filters: Record<string, [number, number]>;
   isTraining: boolean;
   demoMode: boolean;
+  // Model parameters
+  rfTrees: number;
+  mlpNeurons: number[];
   
   // Actions
   setModel: (model: ModelType) => void;
   setFeatures: (features: string[]) => void;
   updateFilter: (feature: string, range: [number, number]) => void;
   clearFilters: () => void;
+  setRfTrees: (trees: number) => void;
+  setMlpNeurons: (neurons: number[]) => void;
 }
 
 interface ModelSlice {
@@ -97,6 +102,9 @@ export const useStore = create<StoreState>()(
       resultFilters: {},
       isTraining: false,
       demoMode: true,
+      // Model parameters
+      rfTrees: 100,
+      mlpNeurons: [16, 16],
       
       // Model slice initial state
       trainedModels: new Set(),
@@ -194,6 +202,18 @@ export const useStore = create<StoreState>()(
       clearFilters: () => {
         set({ filters: {} });
       },
+      
+      setRfTrees: (trees) => {
+        set({ rfTrees: trees });
+        // Invalidate trained models when parameters change
+        set({ trainedModels: new Set() });
+      },
+      
+      setMlpNeurons: (neurons) => {
+        set({ mlpNeurons: neurons });
+        // Invalidate trained models when parameters change
+        set({ trainedModels: new Set() });
+      },
 
       // Result filter handlers (used in Data Explorer)
       setResultFilter: (feature: string, range: [number, number]) => {
@@ -208,7 +228,7 @@ export const useStore = create<StoreState>()(
       
       // Model actions
       trainModel: async () => {
-        const { selectedModel, selectedFeatures, filters } = get();
+        const { selectedModel, selectedFeatures, filters, rfTrees, mlpNeurons } = get();
         
         if (selectedFeatures.length === 0) {
           console.error('No features selected');
@@ -225,6 +245,8 @@ export const useStore = create<StoreState>()(
             test_size: 0.2,
             random_state: 42,
             scale_numeric: true,
+            n_estimators: selectedModel === 'rf' ? rfTrees : undefined,
+            hidden_layers: selectedModel === 'mlp' ? mlpNeurons : undefined,
           });
           
           set((state) => ({

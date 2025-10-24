@@ -35,8 +35,8 @@ class DataManager:
             if TARGET_COLUMN not in self.df.columns:
                 raise ValueError(f"Target column '{TARGET_COLUMN}' not found in dataset")
             
-            # Get metadata
-            feature_list = [col for col in self.df.columns if col != TARGET_COLUMN]
+            # Get metadata - use FEATURE_COLUMNS order for consistency
+            feature_list = [col for col in FEATURE_COLUMNS if col in self.df.columns]
             row_count = len(self.df)
             na_stats = self.df.isnull().sum().to_dict()
             

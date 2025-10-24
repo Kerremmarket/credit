@@ -64,7 +64,7 @@ export function ModelSelector() {
               px-2 py-1 rounded border text-xs transition-all
               ${
                 selectedModel === model.value
-                  ? 'border-primary-500 bg-primary-50 text-primary-700'
+                  ? 'border-green-500 bg-green-50 text-green-700 shadow-sm'
                   : 'border-gray-300 bg-white hover:border-gray-300 text-gray-700'
               }
               ${isTraining ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
