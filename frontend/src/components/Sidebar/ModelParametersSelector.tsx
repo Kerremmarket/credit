@@ -48,7 +48,7 @@ export function ModelParametersSelector() {
               Layer 1 Neurons
             </label>
             <div className="flex gap-2">
-              {[4, 8, 16, 32].map((n) => (
+              {[4, 8, 16, 32, 64].map((n) => (
                 <button
                   key={n}
                   onClick={() => setMlpNeurons([n, mlpNeurons[1]])}
@@ -68,7 +68,7 @@ export function ModelParametersSelector() {
               Layer 2 Neurons
             </label>
             <div className="flex gap-2">
-              {[4, 8, 16, 32].map((n) => (
+              {[4, 8, 16, 32, 64].map((n) => (
                 <button
                   key={n}
                   onClick={() => setMlpNeurons([mlpNeurons[0], n])}

@@ -57,7 +57,7 @@ export function GlobalTree({ tree, maxDepth = 6 }: GlobalTreeProps) {
 
     // Normalize positions to pixels
     const xGap = 100; // horizontal spacing in px
-    const yGap = 80;  // vertical spacing in px
+    const yGap = 200; // vertical spacing in px
     const padding = 40;
     const pxNodes = [] as { id: number; x: number; y: number; isLeaf: boolean; label: string; thresh?: string }[];
     const pxEdges = [] as { x1: number; y1: number; x2: number; y2: number }[];
@@ -110,7 +110,7 @@ export function GlobalTree({ tree, maxDepth = 6 }: GlobalTreeProps) {
     // Avoid preventDefault on passive listeners; just compute zoom
     const delta = -e.deltaY;
     const factor = delta > 0 ? 1.1 : 0.9;
-    setScale((s) => Math.min(3, Math.max(0.3, s * factor)));
+    setScale((s) => Math.min(3, Math.max(0.1, s * factor)));
   };
 
   const onMouseDown = (e: React.MouseEvent) => {
@@ -138,7 +138,7 @@ export function GlobalTree({ tree, maxDepth = 6 }: GlobalTreeProps) {
           <div className="flex gap-1">
             <button 
               type="button"
-              onClick={() => { setScale((s) => Math.max(0.3, s * 0.9)); }}
+              onClick={() => { setScale((s) => Math.max(0.1, s * 0.9)); }}
               className="px-2 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
             >
               −

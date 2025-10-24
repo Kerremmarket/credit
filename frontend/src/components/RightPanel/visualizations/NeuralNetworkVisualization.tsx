@@ -327,10 +327,14 @@ export function NeuralNetworkVisualization() {
               const x2 = (layerIdx + 2) * xSpacing;
               const currentCount = layer.neurons;
               const nextCount = nextLayer.neurons;
+              // Center both layers vertically
+              const yOffset1 = (maxNeuronsInLayer - currentCount) * ySpacing / 2;
+              const yOffset2 = (maxNeuronsInLayer - nextCount) * ySpacing / 2;
+              
               return new Array(currentCount).fill(0).map((_, neuronIdx: number) => {
-                const y1 = (neuronIdx + 1) * ySpacing;
+                const y1 = yOffset1 + (neuronIdx + 1) * ySpacing;
                 return new Array(nextCount).fill(0).map((__, nextIdx: number) => {
-                  const y2 = (nextIdx + 1) * ySpacing;
+                  const y2 = yOffset2 + (nextIdx + 1) * ySpacing;
                   const activation = layer.activations?.[neuronIdx] ?? 0.5;
                   const weight = Math.abs(activation);
                   return (
@@ -341,7 +345,7 @@ export function NeuralNetworkVisualization() {
                       x2={x2}
                       y2={y2}
                       stroke="rgb(59, 130, 246)"
-                      strokeWidth={Math.max(0.5, weight * 3)}
+                      strokeWidth={Math.max(0.3, weight * 1.5)}
                       opacity={0.4 + weight * 0.4}
                     />
                   );
@@ -354,9 +358,12 @@ export function NeuralNetworkVisualization() {
               const x = (layerIdx + 1) * xSpacing;
               const currentCount = layer.neurons;
               const isFeatureLayer = layer.type === 'features';
+              // Center this layer vertically based on how many neurons it has
+              const yOffset = (maxNeuronsInLayer - currentCount) * ySpacing / 2;
+              
             return new Array(currentCount).fill(0).map((_, neuronIdx: number) => {
               const activation = layer.activations?.[neuronIdx] ?? 0.5;
-              const y = (neuronIdx + 1) * ySpacing;
+              const y = yOffset + (neuronIdx + 1) * ySpacing;
               return (
                 <g key={`${layerIdx}-${neuronIdx}`}>
                   <circle
@@ -426,13 +433,17 @@ export function NeuralNetworkVisualization() {
                 const currentCount = layer.neurons;
                 const nextCount = nextLayer.neurons;
                 const weights = layer.w || [];
+                // Center both layers vertically
+                const yOffset1 = (maxNeuronsInLayer - currentCount) * ySpacing / 2;
+                const yOffset2 = (maxNeuronsInLayer - nextCount) * ySpacing / 2;
+                
                 return new Array(currentCount).fill(0).flatMap((_, neuronIdx: number) => {
                   return new Array(nextCount).fill(0).map((__, nextIdx: number) => {
                     const weight = weights[neuronIdx]?.[nextIdx] ?? 0.5;
                     const x1 = (layerIdx + 1) * xSpacing;
                     const x2 = (layerIdx + 2) * xSpacing;
-                    const y1 = (neuronIdx + 1) * ySpacing;
-                    const y2 = (nextIdx + 1) * ySpacing;
+                    const y1 = yOffset1 + (neuronIdx + 1) * ySpacing;
+                    const y2 = yOffset2 + (nextIdx + 1) * ySpacing;
                     return (
                       <line
                         key={`${layerIdx}-${neuronIdx}-${nextIdx}`}
@@ -441,7 +452,7 @@ export function NeuralNetworkVisualization() {
                         x2={x2}
                         y2={y2}
                         stroke="rgb(59, 130, 246)"
-                        strokeWidth={Math.max(0.5, weight * 3)}
+                        strokeWidth={Math.max(0.3, weight * 1.5)}
                         opacity={0.4 + weight * 0.4}
                       />
                     );
@@ -454,9 +465,12 @@ export function NeuralNetworkVisualization() {
                 const x = (layerIdx + 1) * xSpacing;
                 const currentCount = layer.neurons;
                 const isFeatureLayer = layer.type === 'features';
+                // Center this layer vertically based on how many neurons it has
+                const yOffset = (maxNeuronsInLayer - currentCount) * ySpacing / 2;
+                
                 return new Array(currentCount).fill(0).map((_, neuronIdx: number) => {
                   const activation = layer.activations?.[neuronIdx] ?? 0.5;
-                  const y = (neuronIdx + 1) * ySpacing;
+                  const y = yOffset + (neuronIdx + 1) * ySpacing;
                   return (
                     <g key={`${layerIdx}-${neuronIdx}`}>
                       <circle
