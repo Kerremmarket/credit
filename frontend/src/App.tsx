@@ -39,7 +39,7 @@ function App() {
       <div className="flex items-center justify-center h-screen" style={{ backgroundColor: '#f9fafb' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading Credit Model Observatory...</p>
+          <p className="mt-4 text-gray-600">Loading Give Me Sum Credit...</p>
         </div>
       </div>
     );
@@ -73,7 +73,7 @@ function App() {
         <div className="flex items-center justify-between h-full px-6">
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold text-gray-900">
-              Credit Model Observatory
+              Give Me Sum Credit
             </h1>
           </div>
           <div />

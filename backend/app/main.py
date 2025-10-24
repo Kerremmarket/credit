@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
-    title="Credit Model Observatory API",
+    title="Give Me Sum Credit API",
     description="API for credit risk model training and explanation",
     version="1.0.0"
 )
@@ -58,14 +58,14 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     """Initialize the application."""
-    logger.info(f"Starting Credit Model Observatory API (Demo Mode: {DEMO_MODE})")
+    logger.info(f"Starting Give Me Sum Credit API (Demo Mode: {DEMO_MODE})")
     
 
 @app.get("/")
 async def root():
     """Root endpoint."""
     return {
-        "message": "Credit Model Observatory API",
+        "message": "Give Me Sum Credit API",
         "demo_mode": DEMO_MODE,
         "endpoints": [
             "/api/health",

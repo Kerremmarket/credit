@@ -1,6 +1,6 @@
 @echo off
 echo ========================================
-echo   Credit Model Observatory - Startup
+echo   Give Me Sum Credit - Startup
 echo ========================================
 echo.
 echo Checking Docker...

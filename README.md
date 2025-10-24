@@ -1,4 +1,4 @@
-# Credit Model Observatory
+# Give Me Sum Credit
 
 A production-ready interactive web application for visualizing and understanding credit scoring models with real mathematical processes and explanations.
 

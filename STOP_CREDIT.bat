@@ -1,6 +1,6 @@
 @echo off
 echo ========================================
-echo   Stopping Credit Model Observatory
+echo   Stopping Give Me Sum Credit
 echo ========================================
 echo.
 
