@@ -28,18 +28,18 @@ export function RightPanel() {
 
   return (
     <div className="flex flex-col h-full" style={{ backgroundColor: '#f9fafb' }}>
-      {/* Model Selector */}
-      <div className="bg-white border-b border-gray-200 p-4">
+      {/* Model Selector - Responsive */}
+      <div className="bg-white border-b border-gray-200 p-3 md:p-4">
         <ModelSelector />
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-auto p-4">
+      {/* Main Content Area - Responsive */}
+      <div className="flex-1 overflow-auto p-3 md:p-4">
         {selectedApplicant ? (
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             {/* Model Visualization */}
-            <div className="glass-card p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="glass-card p-4 md:p-6">
+              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center gap-2">
                 Model Forward Pass
                 {selectedModel === 'mlp' && (
                   <span className="relative group inline-flex items-center">
@@ -95,14 +95,14 @@ export function RightPanel() {
             {/* Feature Explanations removed for applicant view */}
 
             {/* Output Block */}
-            <div className="glass-card p-6">
+            <div className="glass-card p-4 md:p-6">
               <OutputBlock />
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="glass-card p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <div className="space-y-3 md:space-y-4">
+            <div className="glass-card p-4 md:p-6">
+              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center gap-2">
                 Model Summary
                 <span className="relative group inline-flex items-center">
                   <span className="cursor-help text-gray-500 select-none">?</span>
