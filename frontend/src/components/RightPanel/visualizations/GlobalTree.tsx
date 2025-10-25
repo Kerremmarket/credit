@@ -183,28 +183,33 @@ export function GlobalTree({ tree, maxDepth = 6 }: GlobalTreeProps) {
           {edges.map((e, i) => (
             <line key={i} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} stroke="#D1D5DB" strokeWidth={2 / scale} />
           ))}
-          {nodes.map((n) => (
-            <g key={n.id}>
-              <rect
-                x={n.x - 48}
-                y={n.y - 18}
-                width={96}
-                height={36}
-                rx={6}
-                fill={n.isLeaf ? '#ECFDF5' : '#F3F4F6'}
-                stroke={n.isLeaf ? '#A7F3D0' : '#E5E7EB'}
-                strokeWidth={1 / scale}
-              />
-              <text x={n.x} y={n.y - 2} textAnchor="middle" fontSize={10 / scale} fill="#374151">
-                {n.isLeaf ? 'Leaf' : n.label}
-              </text>
-              {!n.isLeaf && (
-                <text x={n.x} y={n.y + 12} textAnchor="middle" fontSize={10 / scale} fill="#6B7280">
-                  ≤ {n.thresh}
-                </text>
-              )}
-            </g>
-          ))}
+          {nodes.map((n) => {
+            const textScale = Math.max(1, 1 / scale);
+            return (
+              <g key={n.id}>
+                <rect
+                  x={n.x - 48}
+                  y={n.y - 18}
+                  width={96}
+                  height={36}
+                  rx={6}
+                  fill={n.isLeaf ? '#ECFDF5' : '#F3F4F6'}
+                  stroke={n.isLeaf ? '#A7F3D0' : '#E5E7EB'}
+                  strokeWidth={1 / scale}
+                />
+                <g transform={`translate(${n.x}, ${n.y}) scale(${textScale})`}>
+                  <text x={0} y={-2} textAnchor="middle" fontSize={10} fill="#374151">
+                    {n.isLeaf ? 'Leaf' : n.label}
+                  </text>
+                  {!n.isLeaf && (
+                    <text x={0} y={12} textAnchor="middle" fontSize={9} fill="#6B7280">
+                      ≤ {n.thresh}
+                    </text>
+                  )}
+                </g>
+              </g>
+            );
+          })}
         </g>
       </svg>
         </div>
@@ -226,28 +231,33 @@ export function GlobalTree({ tree, maxDepth = 6 }: GlobalTreeProps) {
               {edges.map((e, i) => (
                 <line key={i} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} stroke="#D1D5DB" strokeWidth={2 / scale} />
               ))}
-              {nodes.map((n) => (
-                <g key={n.id}>
-                  <rect
-                    x={n.x - 48}
-                    y={n.y - 18}
-                    width={96}
-                    height={36}
-                    rx={6}
-                    fill={n.isLeaf ? '#ECFDF5' : '#F3F4F6'}
-                    stroke={n.isLeaf ? '#A7F3D0' : '#E5E7EB'}
-                    strokeWidth={1 / scale}
-                  />
-                  <text x={n.x} y={n.y - 2} textAnchor="middle" fontSize={10 / scale} fill="#374151">
-                    {n.isLeaf ? 'Leaf' : n.label}
-                  </text>
-                  {!n.isLeaf && (
-                    <text x={n.x} y={n.y + 12} textAnchor="middle" fontSize={10 / scale} fill="#6B7280">
-                      ≤ {n.thresh}
-                    </text>
-                  )}
-                </g>
-              ))}
+              {nodes.map((n) => {
+                const textScale = Math.max(1, 1 / scale);
+                return (
+                  <g key={n.id}>
+                    <rect
+                      x={n.x - 48}
+                      y={n.y - 18}
+                      width={96}
+                      height={36}
+                      rx={6}
+                      fill={n.isLeaf ? '#ECFDF5' : '#F3F4F6'}
+                      stroke={n.isLeaf ? '#A7F3D0' : '#E5E7EB'}
+                      strokeWidth={1 / scale}
+                    />
+                    <g transform={`translate(${n.x}, ${n.y}) scale(${textScale})`}>
+                      <text x={0} y={-2} textAnchor="middle" fontSize={10} fill="#374151">
+                        {n.isLeaf ? 'Leaf' : n.label}
+                      </text>
+                      {!n.isLeaf && (
+                        <text x={0} y={12} textAnchor="middle" fontSize={9} fill="#6B7280">
+                          ≤ {n.thresh}
+                        </text>
+                      )}
+                    </g>
+                  </g>
+                );
+              })}
             </g>
           </svg>
         </div>
