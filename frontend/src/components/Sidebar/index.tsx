@@ -1,6 +1,4 @@
-import { useMemo, useState } from 'react';
-import { FEATURE_EXPLANATION, abbrev } from '@/lib/featureAbbrev';
-import { useStore } from '@/state/useStore';
+import { useState } from 'react';
 import { DistributionOverview } from './DistributionOverview';
 import { FeatureSelector } from './FeatureSelector';
 import { ApplicantTable } from './ApplicantTable';
@@ -12,22 +10,15 @@ interface SidebarProps {
 
 export function Sidebar({ onClose }: SidebarProps) {
   const [activeTab, setActiveTab] = useState<'training' | 'distribution' | 'applicants'>('training');
-  const filters = useStore((s) => s.filters);
-  const selectedFeatures = useStore((s) => s.selectedFeatures);
-  const isTraining = useStore((s) => s.isTraining);
-  const trainModel = useStore((s) => s.trainModel);
-
-  const filterChips = useMemo(() => Object.entries(filters) as [string, [number, number]][], [filters]);
 
   return (
     <div className="flex flex-col h-full">
       {/* Tab Navigation - Responsive */}
       <div className="flex border-b border-gray-200">
-        {/* Single leftmost help icon with hover panel */}
+        {/* Help tooltip for target definition */}
         <div className="px-1 md:px-2 flex items-center relative group">
           <span className="cursor-help text-gray-500 select-none text-sm">?</span>
           <div className="hidden group-hover:block fixed left-2 md:left-3 top-12 md:top-14 z-[99999] w-[90vw] md:w-auto max-w-md rounded-md border border-gray-200 bg-white shadow-2xl p-3 md:p-4 text-[10px] md:text-[11px] text-gray-700 pointer-events-none">
-            {/* Target variable only */}
             <div className="flex gap-2 md:gap-3 items-start">
               <span className="w-14 md:w-16 shrink-0 font-mono text-gray-900 text-[9px] md:text-[10px] font-semibold">TARGET</span>
               <span className="flex-1 leading-relaxed text-[9px] md:text-[10px]">Person experienced 90 days past due delinquency or worse (1 for yes, 0 for no)</span>

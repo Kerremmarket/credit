@@ -102,19 +102,8 @@ export function RightPanel() {
         ) : (
           <div className="space-y-3 md:space-y-4">
             <div className="glass-card p-4 md:p-6">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center gap-2">
+              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">
                 Model Summary
-                <span className="relative group inline-flex items-center">
-                  <span className="cursor-help text-gray-500 select-none">?</span>
-                  <div className="hidden group-hover:block absolute left-4 top-full mt-2 z-[9999] w-[22rem] max-h-[18rem] overflow-auto rounded-md border border-gray-200 bg-white shadow-lg p-3 text-[11px] text-gray-700">
-                    <div className="space-y-1">
-                      <div><span className="font-semibold">AUC:</span> Measures how well the model ranks positives above negatives across all thresholds; 0.5 = random, 1.0 = perfect.</div>
-                      <div><span className="font-semibold">Accuracy:</span> Share of correct predictions at a chosen threshold; can mislead on imbalanced data.</div>
-                      <div><span className="font-semibold">Avg. pred. prob:</span> Average predicted probability on the set; should roughly align with base rate if calibrated.</div>
-                      <div><span className="font-semibold">Feature importance:</span> Relative contribution of each feature to predictions; highlights key drivers.</div>
-                    </div>
-                  </div>
-                </span>
               </h3>
               <ModelSummary />
             </div>

@@ -110,35 +110,49 @@ export function ModelSummary() {
           <NeuralNetworkVisualization />
         </div>
       )}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <div className="text-xs text-gray-500">AUC</div>
+          <div className="text-xs font-semibold text-gray-600">AUC</div>
           <div className="text-2xl font-semibold">{auc ?? '—'}</div>
+          <p className="mt-2 text-xs text-gray-500 leading-snug">
+            Area Under the ROC Curve — measures how well the model separates positive vs. negative cases. 0.5 is random, 1.0 is perfect.
+          </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <div className="text-xs text-gray-500">Accuracy</div>
+          <div className="text-xs font-semibold text-gray-600">Accuracy</div>
           <div className="text-2xl font-semibold">{accuracy ?? '—'}</div>
+          <p className="mt-2 text-xs text-gray-500 leading-snug">
+            Share of test records classified correctly (true positives plus true negatives).
+          </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <div className="text-xs text-gray-500">Avg Pred. Prob (test)</div>
+          <div className="text-xs font-semibold text-gray-600">Avg Pred. Prob (test)</div>
           <div className="text-2xl font-semibold">{avgProba ?? '—'}</div>
+          <p className="mt-2 text-xs text-gray-500 leading-snug">
+            Average predicted probability of default across the holdout test set — shows the model’s overall risk level.
+          </p>
         </div>
       </div>
 
       <div className="rounded-lg border border-gray-200 bg-white p-4">
         <div className="text-sm font-medium text-gray-900 mb-3">Global Feature Importance</div>
         {barData.length ? (
-          <Plot
-            data={barData}
-            layout={{
-              height: 260,
-              margin: { t: 10, r: 10, b: 60, l: 40 },
-              showlegend: false,
-              xaxis: { tickfont: { size: 10 } },
-            }}
-            config={{ displayModeBar: false, responsive: true }}
-            className="w-full"
-          />
+          <>
+            <Plot
+              data={barData}
+              layout={{
+                height: 260,
+                margin: { t: 10, r: 10, b: 60, l: 40 },
+                showlegend: false,
+                xaxis: { tickfont: { size: 10 } },
+              }}
+              config={{ displayModeBar: false, responsive: true }}
+              className="w-full"
+            />
+            <p className="mt-3 text-xs text-gray-500 leading-snug">
+              Ranks features by their average influence on predictions. Larger bars highlight features that drive the model most.
+            </p>
+          </>
         ) : (
           <div className="text-gray-500 text-sm">No importance available yet.</div>
         )}
@@ -159,21 +173,16 @@ export function ModelSummary() {
               />
             ))}
           </div>
+          <p className="mt-3 text-xs text-gray-500 leading-snug">
+            Shows how the predicted probability changes as a single feature varies while the rest stay at their observed values.
+          </p>
         </div>
       )}
 
       {/* Confusion Matrix */}
       {confusion && confusion.length === 2 && confusion[0].length === 2 && (
         <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <div className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-            Confusion Matrix (test)
-            <span className="relative group inline-flex items-center">
-              <span className="cursor-help text-gray-500 select-none">?</span>
-              <div className="hidden group-hover:block absolute left-4 top-full mt-2 z-[9999] w-[22rem] max-h-[18rem] overflow-auto rounded-md border border-gray-200 bg-white shadow-lg p-3 text-[11px] text-gray-700">
-                2×2 table counting True Positives, False Positives, True Negatives, and False Negatives; summarizes classification errors and supports metrics like precision and recall.
-              </div>
-            </span>
-          </div>
+          <div className="text-sm font-medium text-gray-900 mb-3">Confusion Matrix (test)</div>
           <div className="grid grid-cols-2 gap-2 text-center">
             {confusion.flat().map((v, i) => (
               <div key={i} className="p-3 rounded border border-gray-200" style={{ backgroundColor: '#f9fafb' }}>
@@ -182,6 +191,9 @@ export function ModelSummary() {
               </div>
             ))}
           </div>
+          <p className="mt-3 text-xs text-gray-500 leading-snug">
+            TN (true negatives) = correctly predicted non-defaults; FP (false positives) = predicted default but actually safe; FN (false negatives) = predicted safe but defaulted; TP (true positives) = correctly predicted defaults. Use the grid to spot where errors cluster.
+          </p>
         </div>
       )}
 

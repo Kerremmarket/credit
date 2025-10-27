@@ -15,6 +15,7 @@ export function NeuralNetworkVisualization() {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const dragging = useRef(false);
   const lastPos = useRef({ x: 0, y: 0 });
+  const baselineOutputActivation = 0.12;
 
   useEffect(() => {
     (async () => {
@@ -34,12 +35,23 @@ export function NeuralNetworkVisualization() {
   const networkData = useMemo(() => {
     // Build layers: feature layer + NN layers
     if (forwardTrace?.layers && !isGlobal) {
-      // Applicant mode: add feature layer, then existing NN layers (limit hidden to 8)
-      const featureLayer = { index: -1, neurons: arch?.input_size || forwardTrace.layers[0]?.a?.length || 1, activations: [], type: 'features' };
+      // Applicant mode: add feature layer, then existing NN layers
+      const inferredInputs = forwardTrace.layers[0]?.W?.length
+        || forwardTrace.layers[0]?.a?.length
+        || arch?.input_size
+        || 1;
+
+      const featureLayer = {
+        index: -1,
+        neurons: inferredInputs,
+        activations: new Array(inferredInputs).fill(1),
+        type: 'features'
+      };
       const nnLayers = forwardTrace.layers.map((layer: any, idx: number) => ({
         index: idx,
         neurons: layer.a?.length || 1,
         activations: layer.a || [0],
+        weights: layer.W || null,
         type: idx === forwardTrace.layers.length - 1 ? 'output' : 'hidden',
       }));
       return { layers: [featureLayer, ...nnLayers], proba: forwardTrace.proba, hasData: true };
@@ -47,7 +59,7 @@ export function NeuralNetworkVisualization() {
     // Global mode: feature layer + all NN layers (no limits)
     if (arch) {
       const layers: any[] = [];
-      layers.push({ index: -1, neurons: arch.input_size, activations: new Array(arch.input_size).fill(0.5), type: 'features' });
+      layers.push({ index: -1, neurons: arch.input_size, activations: new Array(arch.input_size).fill(1), type: 'features' });
       arch.hidden_layers.forEach((n, i) => {
         layers.push({ index: i, neurons: n, activations: new Array(n).fill(0.5), type: 'hidden' });
       });
@@ -321,7 +333,7 @@ export function NeuralNetworkVisualization() {
             preserveAspectRatio="xMidYMid meet"
           >
             {/* Draw connections with weighted thickness */}
-            {networkData.layers.slice(0, -1).map((layer: any, layerIdx: number) => {
+          {networkData.layers.slice(0, -1).map((layer: any, layerIdx: number) => {
               const nextLayer = networkData.layers[layerIdx + 1];
               const x1 = (layerIdx + 1) * xSpacing;
               const x2 = (layerIdx + 2) * xSpacing;
@@ -333,10 +345,31 @@ export function NeuralNetworkVisualization() {
               
               return new Array(currentCount).fill(0).map((_, neuronIdx: number) => {
                 const y1 = yOffset1 + (neuronIdx + 1) * ySpacing;
+                const sourceActivation = layer.activations?.[neuronIdx] ?? 0;
+                const nextWeights = nextLayer.weights || [];
                 return new Array(nextCount).fill(0).map((__, nextIdx: number) => {
                   const y2 = yOffset2 + (nextIdx + 1) * ySpacing;
-                  const activation = layer.activations?.[neuronIdx] ?? 0.5;
-                  const weight = Math.abs(activation);
+                  const targetActivation = nextLayer.activations?.[nextIdx] ?? 0;
+                  const effectiveTargetActivation =
+                    nextLayer.type === 'output' && Math.abs(targetActivation) < 1e-4
+                      ? baselineOutputActivation
+                      : targetActivation;
+                  const rawWeight = nextWeights?.[neuronIdx]?.[nextIdx];
+
+                  if (rawWeight !== undefined && Math.abs(rawWeight) < 1e-4) {
+                    return null;
+                  }
+
+                  const magnitude = Math.abs(sourceActivation) * Math.abs(effectiveTargetActivation);
+
+                  if (magnitude < 1e-4) {
+                    return null;
+                  }
+
+                  const thickness = Math.min(1.3, Math.max(0.5, magnitude * 1.5));
+                  const strokeColor = 'rgb(34, 197, 94)';
+                  const opacity = 0.25 + Math.min(0.5, magnitude * 0.6);
+
                   return (
                     <line
                       key={`${layerIdx}-${neuronIdx}-${nextIdx}`}
@@ -344,9 +377,14 @@ export function NeuralNetworkVisualization() {
                       y1={y1}
                       x2={x2}
                       y2={y2}
-                      stroke="rgb(59, 130, 246)"
-                      strokeWidth={Math.max(0.3, weight * 1.5)}
-                      opacity={0.4 + weight * 0.4}
+                      stroke={strokeColor}
+                      strokeWidth={thickness}
+                      strokeDasharray="8 4"
+                      style={{
+                        animation: 'dash-flow 1.5s linear infinite',
+                        animationDelay: `${(layerIdx * nextCount + nextIdx) * 0.05}s`,
+                      }}
+                      opacity={opacity}
                     />
                   );
                 });
@@ -428,22 +466,45 @@ export function NeuralNetworkVisualization() {
             }}
           >
               {/* Draw weighted connections */}
-              {networkData.layers.slice(0, -1).map((layer: any, layerIdx: number) => {
+          {networkData.layers.slice(0, -1).map((layer: any, layerIdx: number) => {
                 const nextLayer = networkData.layers[layerIdx + 1];
                 const currentCount = layer.neurons;
                 const nextCount = nextLayer.neurons;
-                const weights = layer.w || [];
+                const weights = nextLayer.weights || [];
                 // Center both layers vertically
                 const yOffset1 = (maxNeuronsInLayer - currentCount) * ySpacing / 2;
                 const yOffset2 = (maxNeuronsInLayer - nextCount) * ySpacing / 2;
                 
                 return new Array(currentCount).fill(0).flatMap((_, neuronIdx: number) => {
+                  const sourceActivation = layer.activations?.[neuronIdx] ?? 0;
+                  const x1 = (layerIdx + 1) * xSpacing;
+                  const y1 = yOffset1 + (neuronIdx + 1) * ySpacing;
+
                   return new Array(nextCount).fill(0).map((__, nextIdx: number) => {
-                    const weight = weights[neuronIdx]?.[nextIdx] ?? 0.5;
-                    const x1 = (layerIdx + 1) * xSpacing;
+                    const targetActivation = nextLayer.activations?.[nextIdx] ?? 0;
+                    const rawWeight = weights?.[neuronIdx]?.[nextIdx];
+
+                    if (rawWeight !== undefined && Math.abs(rawWeight) < 1e-4) {
+                      return null;
+                    }
+
+                    const effectiveTargetActivation =
+                      nextLayer.type === 'output' && Math.abs(targetActivation) < 1e-4
+                        ? baselineOutputActivation
+                        : targetActivation;
+
+                    const magnitude = Math.abs(sourceActivation) * Math.abs(effectiveTargetActivation);
+
+                    if (magnitude < 1e-4) {
+                      return null;
+                    }
+
+                    const thickness = Math.min(1.3, Math.max(0.5, magnitude * 1.5));
+                    const strokeColor = 'rgb(34, 197, 94)';
+                    const opacity = 0.25 + Math.min(0.5, magnitude * 0.6);
                     const x2 = (layerIdx + 2) * xSpacing;
-                    const y1 = yOffset1 + (neuronIdx + 1) * ySpacing;
                     const y2 = yOffset2 + (nextIdx + 1) * ySpacing;
+
                     return (
                       <line
                         key={`${layerIdx}-${neuronIdx}-${nextIdx}`}
@@ -451,9 +512,14 @@ export function NeuralNetworkVisualization() {
                         y1={y1}
                         x2={x2}
                         y2={y2}
-                        stroke="rgb(59, 130, 246)"
-                        strokeWidth={Math.max(0.3, weight * 1.5)}
-                        opacity={0.4 + weight * 0.4}
+                        stroke={strokeColor}
+                        strokeWidth={thickness}
+                        strokeDasharray="8 4"
+                        style={{
+                          animation: 'dash-flow 1.5s linear infinite',
+                          animationDelay: `${(layerIdx * nextCount + nextIdx) * 0.05}s`,
+                        }}
+                        opacity={opacity}
                       />
                     );
                   });

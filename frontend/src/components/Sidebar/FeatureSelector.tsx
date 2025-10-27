@@ -44,7 +44,7 @@ export function FeatureSelector() {
   };
 
   // Validate MLP neuron configuration
-  const validNeuronOptions = [4, 8, 16, 32, 64];
+  const validNeuronOptions = [2, 4, 8, 16];
   const isMlpConfigValid = selectedModel !== 'mlp' || 
     (validNeuronOptions.includes(mlpNeurons[0]) && validNeuronOptions.includes(mlpNeurons[1]));
   

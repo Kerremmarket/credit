@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
 @layer base {
   body {
     @apply text-gray-900;
