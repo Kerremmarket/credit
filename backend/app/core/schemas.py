@@ -88,6 +88,7 @@ class LayerTrace(BaseModel):
     b: Optional[List[float]] = None  # Bias vector
     z: Optional[List[float]] = None  # Pre-activation
     a: Optional[List[float]] = None  # Post-activation
+    feature_contributions: Optional[Dict[str, float]] = None
 
 
 class ForwardTraceResponse(BaseModel):

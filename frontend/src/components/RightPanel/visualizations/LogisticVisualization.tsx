@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
+import { abbrev } from '@/lib/featureAbbrev';
 
 export function LogisticVisualization() {
   const forwardTrace = useStore((state) => state.forwardTrace);
@@ -91,7 +92,7 @@ export function LogisticVisualization() {
                 className="flex items-center"
               >
                 <span className="w-32 text-xs text-gray-600 truncate" title={feature}>
-                  {feature}
+                  {abbrev(feature)}
                 </span>
                 <div className="flex-1 mx-2">
                   <div className="h-6 bg-gray-100 rounded relative">

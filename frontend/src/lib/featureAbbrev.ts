@@ -20,7 +20,7 @@ export const FEATURE_EXPLANATION: Record<string, string> = {
   'age': 'Age of borrower in years',
   'NumberOfTime30-59DaysPastDueNotWorse': 'Count of 30-59 days past due in last 2 years',
   'NumberOfTime60-89DaysPastDueNotWorse': 'Count of 60-89 days past due in last 2 years',
-  'NumberOfTimes90DaysLate': 'Count of 90+ days past due',
+  'NumberOfTimes90DaysLate': 'Count of 90+ days past due in last 2 years',
   'DebtRatio': 'Monthly debt payments divided by monthly income',
   'MonthlyIncome': 'Monthly income in dollars',
   'NumberOfOpenCreditLinesAndLoans': 'Number of open loans and credit lines',
